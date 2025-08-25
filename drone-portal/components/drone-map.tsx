@@ -3,10 +3,26 @@
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Layers, Satellite } from "lucide-react"
-import L from "leaflet"
 
 interface DroneMapProps {
   showHeatmap?: boolean
+}
+
+interface LeafletModule {
+  default: any
+  map: any
+  tileLayer: any
+  circleMarker: any
+  circle: any
+  Icon: any
+  TileLayer: any
+}
+
+declare module "leaflet" {
+  interface Map {
+    _streetLayer?: any
+    _satelliteLayer?: any
+  }
 }
 
 const mockDrones = [
@@ -89,6 +105,12 @@ export function DroneMap({ showHeatmap = false }: DroneMapProps) {
   const [mapStyle, setMapStyle] = useState<"streets" | "satellite">("streets")
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const [leafletLoaded, setLeafletLoaded] = useState(false)
+  const [L, setL] = useState<any>(null)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   useEffect(() => {
     const loadLeaflet = async () => {
@@ -103,8 +125,8 @@ export function DroneMap({ showHeatmap = false }: DroneMapProps) {
           document.head.appendChild(link)
         }
 
-        // Load Leaflet JS
-        const leaflet = await import("leaflet")
+        const leafletModule = (await import("leaflet")) as LeafletModule
+        const leaflet = leafletModule.default || leafletModule
 
         // Fix default markers
         delete (leaflet.Icon.Default.prototype as any)._getIconUrl
@@ -114,6 +136,7 @@ export function DroneMap({ showHeatmap = false }: DroneMapProps) {
           shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
         })
 
+        setL(leaflet)
         setLeafletLoaded(true)
         return leaflet
       } catch (error) {
@@ -126,7 +149,7 @@ export function DroneMap({ showHeatmap = false }: DroneMapProps) {
   }, [])
 
   useEffect(() => {
-    if (!mapRef.current || !leafletLoaded || isMapLoaded) return
+    if (!mapRef.current || !L || isMapLoaded) return
 
     const initMap = async () => {
       try {
@@ -134,7 +157,7 @@ export function DroneMap({ showHeatmap = false }: DroneMapProps) {
           center: [40.7128, -74.006],
           zoom: 11,
           zoomControl: true,
-          preferCanvas: true, // Better performance
+          preferCanvas: true,
         })
 
         const streetLayer = L.tileLayer(
@@ -278,12 +301,15 @@ export function DroneMap({ showHeatmap = false }: DroneMapProps) {
         setIsMapLoaded(false)
       }
     }
-  }, [showHeatmap, leafletLoaded])
+  }, [showHeatmap, L])
 
   useEffect(() => {
-    if (leafletMapRef.current && leafletMapRef.current._streetLayer && leafletMapRef.current._satelliteLayer) {
-      const map = leafletMapRef.current
+    if (!leafletMapRef.current || !L || !leafletMapRef.current._streetLayer || !leafletMapRef.current._satelliteLayer)
+      return
 
+    const map = leafletMapRef.current
+
+    if (map._streetLayer && map._satelliteLayer) {
       // Remove current tile layer
       map.eachLayer((layer: any) => {
         if (layer instanceof L.TileLayer) {
@@ -298,7 +324,17 @@ export function DroneMap({ showHeatmap = false }: DroneMapProps) {
         map._satelliteLayer.addTo(map)
       }
     }
-  }, [mapStyle])
+  }, [mapStyle, L])
+
+  if (!isMounted || typeof window === "undefined") {
+    return (
+      <div className="w-full h-80 rounded-lg relative overflow-hidden border bg-card">
+        <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
+          <div className="text-sm text-muted-foreground">Loading map...</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full h-80 rounded-lg relative overflow-hidden border bg-card">

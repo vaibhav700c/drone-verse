@@ -170,7 +170,7 @@ export function VOCChart() {
                     stroke="hsl(0, 84%, 60%)"
                     strokeWidth={2}
                     strokeDasharray="5 5"
-                    label={{ value: "Threshold", position: "topRight" }}
+                    label={{ value: "Threshold", position: "topLeft" }}
                   />
                 </AreaChart>
               ) : (

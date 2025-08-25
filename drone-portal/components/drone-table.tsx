@@ -357,10 +357,8 @@ export function DroneTable() {
                     </Label>
                     <Input
                       id="speed"
-                      type="number"
-                      min="0"
                       value={newDrone.speed}
-                      onChange={(e) => setNewDrone({ ...newDrone, speed: Number.parseInt(e.target.value) })}
+                      onChange={(e) => setNewDrone({ ...newDrone, speed: e.target.value })}
                       className="col-span-3"
                       placeholder="e.g., 25 mph"
                     />
@@ -582,12 +580,8 @@ export function DroneTable() {
                               </Label>
                               <Input
                                 id="edit-speed"
-                                type="number"
-                                min="0"
                                 value={selectedDrone.speed}
-                                onChange={(e) =>
-                                  setSelectedDrone({ ...selectedDrone, speed: Number.parseInt(e.target.value) })
-                                }
+                                onChange={(e) => setSelectedDrone({ ...selectedDrone, speed: e.target.value })}
                                 className="col-span-3"
                               />
                             </div>

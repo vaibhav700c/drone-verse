@@ -41,9 +41,6 @@ export default function DashboardPage() {
     batteryAverage: 78,
   }
 
-  console.log("[v0] DashboardPage rendering, activeTab:", activeTab)
-  console.log("[v0] Stats data:", stats)
-
   return (
     <div className="min-h-screen bg-background">
       <NavigationHeader />
@@ -96,8 +93,6 @@ export default function DashboardPage() {
       <main className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsContent value="dashboard" className="space-y-6">
-            {console.log("[v0] Rendering dashboard tab content")}
-
             {/* Stats Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
@@ -153,7 +148,6 @@ export default function DashboardPage() {
                   <CardDescription>Volatile Organic Compounds over time</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">
-                  {console.log("[v0] About to render VOCChart component")}
                   <VOCChart />
                 </CardContent>
               </Card>
@@ -164,7 +158,6 @@ export default function DashboardPage() {
                   <CardDescription>Real-time drone positions and status</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
-                  {console.log("[v0] About to render DroneMap component")}
                   <div className="p-6 pb-0">
                     <DroneMap />
                   </div>
@@ -198,12 +191,10 @@ export default function DashboardPage() {
           </TabsContent>
 
           <TabsContent value="drones">
-            {console.log("[v0] Rendering drones tab")}
             <DroneTable />
           </TabsContent>
 
           <TabsContent value="inspections">
-            {console.log("[v0] Rendering inspections tab")}
             <InspectionReports />
           </TabsContent>
 
